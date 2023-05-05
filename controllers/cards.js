@@ -54,7 +54,7 @@ const deleteCard = async (req, res) => {
     throw HttpError(404, "Card not found");
   }
 
-  res.status(204).json({ cardId, message: "Card deleted" });
+  res.status(200).json({ cardId, message: "Card deleted" });
 };
 
 const updateCompleteStatus = async (req, res) => {
