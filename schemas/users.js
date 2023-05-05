@@ -1,6 +1,6 @@
 const Joi = require("joi");
 
-const emailRegex = require("../models/user");
+const { emailRegex } = require("../models/user");
 
 const signupSchema = Joi.object({
   username: Joi.string().min(3).max(8).required(),
