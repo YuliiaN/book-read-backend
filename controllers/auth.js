@@ -28,7 +28,7 @@ const signup = async (req, res) => {
   const verifyEmail = {
     to: email,
     subject: "Verify email",
-    html: `<p><a href="http://${BASE_URL}/api/auth/verify/${verificationToken}">Click here to verify account</a></p>`,
+    html: `<p><a href="${BASE_URL}/api/auth/verify/${verificationToken}">Click here to verify account</a></p>`,
   };
 
   await sendEmail(verifyEmail);
@@ -71,8 +71,55 @@ const signout = async (req, res) => {
   res.status(200).json({ message: "Logout success" });
 };
 
+const verifyEmail = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({ verificationToken });
+
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  await User.findByIdAndUpdate(user._id, {
+    verificationToken: null,
+    verify: true,
+  });
+
+  res.status(200).json({ message: "Success verification" });
+};
+
+const resendVerifyEmail = async (req, res) => {
+  const { email } = req.body;
+
+  // if (!email) {
+  //   res.status(400).json({ message: "Missing required field email" });
+  // }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  if (user.verify) {
+    res.status(400).json({ message: "Verification has already been passed" });
+    return;
+  }
+
+  const verifyEmail = {
+    to: email,
+    subject: "Verify email",
+    html: `<p><a href="${BASE_URL}/api/auth/verify/${user.verificationToken}">Click here to verify account</a></p>`,
+  };
+
+  await sendEmail(verifyEmail);
+
+  res.status(200).json({ message: "Verification email sent" });
+};
+
 module.exports = {
   signup: ctrlWrapper(signup),
   signin: ctrlWrapper(signin),
   signout: ctrlWrapper(signout),
+  verifyEmail: ctrlWrapper(verifyEmail),
+  resendVerifyEmail: ctrlWrapper(resendVerifyEmail),
 };
