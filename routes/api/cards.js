@@ -10,7 +10,12 @@ const router = express.Router();
 
 router.get("/", authenticate, ctrl.getAllCards);
 
-router.post("/", authenticate, validateBody(schemas.addSchema), ctrl.addCard);
+router.post(
+  "/create",
+  authenticate,
+  validateBody(schemas.addSchema),
+  ctrl.addCard
+);
 
 router.put(
   "/:cardId",

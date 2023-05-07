@@ -1,8 +1,11 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
+
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./swagger.json");
+const YAML = require("yamljs");
+const path = require("path");
+
 require("dotenv").config();
 
 const authRouter = require("./routes/api/auth");
@@ -11,6 +14,7 @@ const cardsRouter = require("./routes/api/cards");
 const app = express();
 
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
+const swaggerDocument = YAML.load(path.join(__dirname, "swagger.yaml"));
 
 app.use(logger(formatsLogger));
 app.use(cors());

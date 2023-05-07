@@ -1,7 +1,7 @@
 const Joi = require("joi").extend(require("@joi/date"));
 
 const addSchema = Joi.object({
-  status: Joi.string().valid("easy", "normal", "hard"),
+  status: Joi.string().valid("easy", "normal", "hard").required(),
   text: Joi.string().min(3).max(100).required(),
   field: Joi.string()
     .valid("stuff", "family", "health", "learning", "leisure", "work")

@@ -1,0 +1,491 @@
+openapi: 3.0.0
+info:
+  title: Questify API
+  version: "0.1"
+servers:
+  - url: https://questify-7qbb.onrender.com
+paths:
+  /api/auth/signup:
+    post:
+      summary: Sign up a new user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUp"
+            example:
+              username: string
+              email: string
+              password: string
+      responses:
+        201:
+          description: User registration successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignUpSerializer"
+              example:
+                email: string
+        400:
+          description: Validation error
+        409:
+          description: Email is already in use
+
+  /api/auth/signin:
+    post:
+      summary: Sign in existing user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignIn"
+            example:
+              email: string
+              password: string
+      responses:
+        200:
+          description: Authorized successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignInSerializer"
+              example:
+                token: string
+                user:
+                  email: string
+        401:
+          description: Authorization failed
+        403:
+          description: Email is not verified
+
+  /api/auth/signout:
+    post:
+      summary: Sign out existing user
+      security:
+        - BearerAuth: []
+      tags:
+        - Auth
+      responses:
+        200:
+          description: Logout success
+        401:
+          description: Bearer auth failed
+
+  /api/auth/verify/{verificationToken}:
+    get:
+      summary: Verification of newly registered user
+      tags:
+        - Verification
+      parameters:
+        - name: verificationToken
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successful verification
+        404:
+          description: User not found
+
+  /api/auth/verify:
+    post:
+      summary: Resend verification token
+      tags:
+        - Verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResendVerification"
+            example:
+              email: string
+      responses:
+        200:
+          description: Verification email resent
+        400:
+          description: Verification has already passed
+        404:
+          description: User not found
+
+  /api/cards:
+    get:
+      summary: Show all cards of a particular user
+      tags:
+        - Cards controller
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Cards returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllCardsSerializer"
+              example:
+                _id: string
+                status: string
+                text: string
+                field: string
+                date: string
+                completed: boolean
+                owner:
+                  _id: string
+                  username: string
+                  email: string
+        401:
+          description: Bearer auth failed
+
+  /api/cards/create:
+    post:
+      summary: Add a new card
+      tags:
+        - Cards controller
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCard"
+            example:
+              status: string,
+              text: string,
+              field: string,
+              date: string
+      responses:
+        201:
+          description: Card created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddCardSerializer"
+              example:
+                status: string,
+                text: string,
+                field: string,
+                date: string
+                owner:
+                  _id: string
+                  username: string
+        400:
+          description: Validation error
+        401:
+          description: Bearer auth failed
+        409:
+          description: Card already exists
+
+  /api/cards/{cardId}:
+    put:
+      summary: Update card
+      tags:
+        - Cards controller
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCard"
+            example:
+              status: string,
+              text: string,
+              field: string,
+              date: string
+      responses:
+        200:
+          description: Updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateCardSerializer"
+        400:
+          description: Validation error
+        401:
+          description: Bearer auth failed
+        403:
+          description: User doesn't own card
+        404:
+          description: Card not found
+
+  /api/cards/{cardId}/:
+    delete:
+      summary: Delete card
+      tags:
+        - Cards controller
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Card deleted
+          content:
+            application/json:
+              schema:
+                properties:
+                  cardId:
+                    type: string
+                  message:
+                    type: string
+                required:
+                  - cardId
+                  - message
+              example:
+                cardId: string
+                message: Card deleted
+        401:
+          description: Bearer auth failed
+        404:
+          description: Card not found
+        403:
+          description: User doesn't own card
+
+  /api/cards/{cardId}/completed:
+    patch:
+      summary: Update completed status of card
+      tags:
+        - Cards controller
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCompleted"
+            example:
+              completed: boolean
+      responses:
+        200:
+          description: Completed status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateCardSerializer"
+        400:
+          description: Validation error
+        401:
+          description: Bearer auth failed
+        403:
+          description: User doesn't own card
+        404:
+          description: Card not found
+
+components:
+  schemas:
+    SignUp:
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 8
+        email:
+          type: string
+          pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+        password:
+          type: string
+          minLength: 8
+      required:
+        - username
+        - email
+        - password
+    SignUpSerializer:
+      properties:
+        email:
+          type: string
+      required:
+        - email
+    SignIn:
+      properties:
+        email:
+          type: string
+          pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+        password:
+          type: string
+          minLength: 8
+      required:
+        - email
+        - password
+    SignInSerializer:
+      properties:
+        token:
+          type: string
+        user:
+          type: object
+          properties:
+            email:
+              type: string
+          required:
+            - email
+      required:
+        - token
+        - user
+        - user.email
+    ResendVerification:
+      properties:
+        email:
+          type: string
+          pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+      required:
+        - email
+    AllCardsSerializer:
+      properties:
+        _id:
+          type: string
+        status:
+          type: string
+        text:
+          type: string
+        field:
+          type: string
+        date:
+          type: string
+          format: date-time
+        completed:
+          type: boolean
+        owner:
+          $ref: "#/components/schemas/UserSerializer"
+      required:
+        - _id
+        - status
+        - text
+        - field
+        - date
+        - completed
+        - owner
+    AddCard:
+      properties:
+        status:
+          type: string
+          enum:
+            - easy
+            - normal
+            - hard
+        text:
+          type: string
+          minLength: 3
+          maxLength: 100
+        field:
+          type: string
+          enum:
+            - stuff
+            - family
+            - health
+            - learning
+            - leisure
+            - work
+        date:
+          type: string
+          format: date-time
+      required:
+        - status
+        - text
+        - field
+        - date
+    AddCardSerializer:
+      properties:
+        status:
+          type: string
+          enum:
+            - easy
+            - normal
+            - hard
+        text:
+          type: string
+          minLength: 3
+          maxLength: 100
+        field:
+          type: string
+          enum:
+            - stuff
+            - family
+            - health
+            - learning
+            - leisure
+            - work
+        date:
+          type: string
+          format: date-time
+        owner:
+          type: object
+          properties:
+            _id:
+              type: string
+            username:
+              type: string
+      required:
+        - status
+        - text
+        - field
+        - date
+        - owner
+    UpdateCardSerializer:
+      properties:
+        _id:
+          type: string
+        status:
+          type: string
+        text:
+          type: string
+        field:
+          type: string
+        date:
+          type: string
+          format: date-time
+        completed:
+          type: boolean
+        owner:
+          type: string
+      required:
+        - _id
+        - status
+        - text
+        - field
+        - date
+        - completed
+        - owner
+    UserSerializer:
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+    UpdateCompleted:
+      properties:
+        completed:
+          type: boolean
+      required:
+        - completed
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
