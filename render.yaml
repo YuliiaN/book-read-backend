@@ -1,4 +1,8 @@
 jobs:
-  - name: my-cron-job
-    schedule: "0 * * * *"
+  - name: keep-backend-active
+    schedule: "*/5 * * * *"
     cmd: curl https://questify-backend.glitch.me/api-docs
+
+  - name: keep-another-backend-active
+    schedule: "*/1 * * * *"
+    cmd: curl https://questify-backend.glitch.me/api-docs/
