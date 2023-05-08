@@ -1,0 +1,4 @@
+jobs:
+  - name: my-cron-job
+    schedule: "0 * * * *"
+    cmd: curl https://questify-backend.glitch.me/api-docs
