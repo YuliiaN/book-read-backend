@@ -9,7 +9,7 @@ const { User } = require("../models/user");
 const { SECRET_KEY, BASE_URL } = process.env;
 
 const signup = async (req, res) => {
-  const { email, password } = req.body;
+  const { username, email, password } = req.body;
   const user = await User.findOne({ email });
 
   if (user) {
@@ -33,7 +33,7 @@ const signup = async (req, res) => {
 
   await sendEmail(verifyEmail);
 
-  res.status(201).json({ email });
+  res.status(201).json({ username, email });
 };
 
 const signin = async (req, res) => {
@@ -66,6 +66,7 @@ const signin = async (req, res) => {
 
 const signout = async (req, res) => {
   const { _id } = req.user;
+
   await User.findByIdAndUpdate(_id, { token: null });
 
   res.status(200).json({ message: "Logout success" });
@@ -89,10 +90,6 @@ const verifyEmail = async (req, res) => {
 
 const resendVerifyEmail = async (req, res) => {
   const { email } = req.body;
-
-  // if (!email) {
-  //   res.status(400).json({ message: "Missing required field email" });
-  // }
 
   const user = await User.findOne({ email });
 

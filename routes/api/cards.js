@@ -31,8 +31,8 @@ router.patch(
   "/:cardId/completed",
   authenticate,
   isValidId,
-  validateBody(schemas.completeSchema),
-  ctrl.updateCompleteStatus
+  validateBody(schemas.completedSchema),
+  ctrl.updateCompletedStatus
 );
 
 module.exports = router;
