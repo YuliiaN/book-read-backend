@@ -17,12 +17,12 @@ const addCard = async (req, res) => {
   const existedCard = await Card.findOne(newCard);
 
   if (existedCard) {
-    throw HttpError(409, "Already exists");
+    throw HttpError(409, "Card already exists");
   }
 
-  await Card.create(newCard);
+  const result = await Card.create(newCard);
 
-  res.status(201).json(newCard);
+  res.status(201).json({ _id: result._id, ...newCard });
 };
 
 const updateCard = async (req, res) => {

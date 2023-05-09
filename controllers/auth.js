@@ -33,17 +33,18 @@ const signup = async (req, res) => {
 
   await sendEmail(verifyEmail);
 
-  res.status(201).json({ username, email });
+  res.status(201).json({ username, email, message: "Verification email sent" });
 };
 
 const signin = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-  const { verify } = user;
 
   if (!user) {
-    throw HttpError(401, "Email or password invalid");
+    throw HttpError(401, "Email or password are invalid");
   }
+
+  const { verify } = user;
 
   if (!verify) {
     throw HttpError(403, "Email is not verified");
@@ -52,7 +53,7 @@ const signin = async (req, res) => {
   const passwordCompare = await bcrypt.compare(password, user.password);
 
   if (!passwordCompare) {
-    throw HttpError(401, "Email or password invalid");
+    throw HttpError(401, "Email or password are invalid");
   }
 
   const payload = { id: user._id };
@@ -69,7 +70,7 @@ const signout = async (req, res) => {
 
   await User.findByIdAndUpdate(_id, { token: null });
 
-  res.status(200).json({ message: "Logout success" });
+  res.status(200).json({ message: "Logout succeeded" });
 };
 
 const verifyEmail = async (req, res) => {

@@ -6,12 +6,8 @@ This is the backend side for a website that provides API for user registration, 
 
 — User registration and account verification via email  
 — User login and authentication using JWT  
-— CRUD operations for cards are only available to authorized users
-— RESTful API architecture following the principles of CRUD operations
-simple and clear endpoints
-stateless
-uses GET, POST, PUT, PATCH, DELETE methods
-returns structured JSON format data in responses and appropriate status codes
+— CRUD operations for cards are only available to authorized users  
+— RESTful API architecture (simple and clear endpoints; stateless; uses GET, POST, PUT, PATCH, DELETE methods; returns structured JSON format data in responses and appropriate status codes)
 
 ## Installation
 
