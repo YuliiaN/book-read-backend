@@ -3,7 +3,7 @@ info:
   title: Questify API
   version: "0.1"
 servers:
-  - url: http://localhost:3000
+  - url: https://questify-backend-c3t6.onrender.com
 paths:
   /api/auth/signup:
     post:
